@@ -31,11 +31,13 @@ sparkify-airflow
 └--airflow
     |
     └--dags
-        |  sparkify_dag.py          # DAG definitions
+        |  create_atbles_dag.py     # DAG to create staging & production tables
+        |  sparkify_dag.py          # DAG to do etl (S3 to Redshift) & data validation
     |     
     └--plugins
         |
         └--helpers
+            |  create_tables.py     # SQL statements to create tables
             |  sql_queries.py       # SQL statements to transform data
         |
         └--operators
@@ -47,9 +49,11 @@ sparkify-airflow
 └--graphics
   |  conn_cred.png                  # AWS connection credentials
   |  conn_redshift.png              # Redshift connection parameters
-  |  DAG_details.png                # DAG result details
-  |  DAG_diagram.png                # DAG/pipeline diagram
-  |  DAG_tree.png                   # DAG tree view
+  |  DAG_1_2.png                    # DAGs status
+  |  DAG_1_details.png              # DAG details (create tables)
+  |  DAG_2_details.png              # DAG details (etl & data validation)
+  |  DAG_1_diagram.png              # DAG diagram (create tables)
+  |  DAG_2_diagram.png              # DAG diagram (etl & data validation)
   |  docker_services.png            # Docker services
   |  stag_prod_tables.png           # Staging & production tables (Redshift)
    
@@ -85,7 +89,9 @@ Operator (*LoadFactOperator* and *LoadDimensionOperator*) run data transformatio
 Operator (*DataQualityOperator*) runs checks on the data itself; operator main functionality is to receive 1+ SQL based 
   test cases along with the expected results and execute the tests; for each test, the test result and expected result 
   needs to be checked, if there is no match, the operator should raise an exception, and the task should retry and 
-  fail eventually; e.g. checking if any production table is empty (no records).
+  fail eventually; in this task was implemented a list of checks 
+  (e.g. ```{"check_sql": "SELECT COUNT(*) FROM songplays WHERE playid is null", 
+  "expected_result": 0}```) to test if production tables are populated (not empty).
 
 Illustration of DAGs (1 - ahead DAG, 2 - main DAG) with tasks and dependencies:
 
