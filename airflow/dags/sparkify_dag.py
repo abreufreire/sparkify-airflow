@@ -53,7 +53,7 @@ with DAG("etl_dag",
         task_id="stage_songs",
         dag=dag,
         s3_bucket="udacity-dend",
-        s3_prefix="song_data/A/A/A",
+        s3_prefix="song_data",
         table="staging_songs",
         copy_options="FORMAT AS JSON 'auto'"
     )
